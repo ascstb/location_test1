@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:location/location.dart';
+import 'package:latlong2/latlong.dart';
 
 void main() {
   runApp(MyApp());
@@ -37,23 +39,67 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    _checkLocation();
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            InkWell(
-              child: Text(
-                'This is a location test',
-              ),
-              onTap: () => _checkLocation(),
-            ),
-          ],
+      body: FlutterMap(
+        options: MapOptions(
+          center: LatLng(
+            _locationData?.latitude ?? 27.8594592,
+            _locationData?.longitude ?? -101.1277665,
+          ),
+          zoom: 13.0,
         ),
+        layers: [
+          MarkerLayerOptions(
+            markers: [
+              Marker(
+                width: 40.0,
+                height: 40.0,
+                point: LatLng(
+                  _locationData?.latitude ?? 27.8594592,
+                  _locationData?.longitude ?? -101.1277665,
+                ),
+                builder: (ctx) => Container(
+                  child: FlutterLogo(),
+                ),
+              ),
+            ],
+          ),
+        ],
+        children: <Widget>[
+          TileLayerWidget(
+              options: TileLayerOptions(
+                  urlTemplate:
+                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  subdomains: ['a', 'b', 'c'])),
+          MarkerLayerWidget(
+              options: MarkerLayerOptions(
+            markers: [
+              Marker(
+                width: 40.0,
+                height: 40.0,
+                point: LatLng(
+                  _locationData?.latitude ?? 27.8594592,
+                  _locationData?.longitude ?? -101.1277665,
+                ),
+                builder: (ctx) => Container(
+                  child: FlutterLogo(),
+                ),
+              ),
+            ],
+          )),
+        ],
       ),
+    );
+  }
+
+  IconButton getLocationButton() {
+    return IconButton(
+      icon: Icon(Icons.location_on),
+      onPressed: () => _checkLocation(),
     );
   }
 
@@ -107,6 +153,9 @@ class _MyHomePageState extends State<MyHomePage> {
       location.onLocationChanged.listen((LocationData currentLocation) {
         print(
             "_MyHomePageState_TAG: checkLocation: currentLocation: ${currentLocation.latitude}, ${currentLocation.longitude}");
+        setState(() {
+
+        });
       });
     } catch (e) {
       print("_MyHomePageState_TAG: _checkLocation: settings: $e");
