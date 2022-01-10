@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
@@ -39,11 +39,13 @@ class _MyHomePageState extends State<MyHomePage> {
   PermissionStatus _permissionGranted;
   LocationData _locationData;
 
-  Completer<GoogleMapController> _controller = Completer();
+  GoogleMapController controller;
   static final CameraPosition _sabinas = CameraPosition(
     target: LatLng(27.8594592, -101.127766),
     zoom: 14.4746,
   );
+
+  Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
 
   @override
   Widget build(BuildContext context) {
@@ -53,11 +55,12 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: GoogleMap(
-        mapType: MapType.hybrid,
+        mapType: MapType.normal,
         initialCameraPosition: _sabinas,
         onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
+          this.controller = controller;
         },
+        markers: Set<Marker>.of(markers.values),
       ),
     );
   }
@@ -168,10 +171,27 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       location.enableBackgroundMode(enable: true);
 
-      location.onLocationChanged.listen((LocationData currentLocation) {
+      location.onLocationChanged.listen((LocationData currentLocation) async {
         print(
             "_MyHomePageState_TAG: checkLocation: currentLocation: ${currentLocation.latitude}, ${currentLocation.longitude}");
-        setState(() {});
+
+        MarkerId markerId = MarkerId("myLocation");
+        Marker marker = Marker(
+          markerId: markerId,
+          position: LatLng(
+            _locationData.latitude,
+            _locationData.longitude,
+          ),
+          infoWindow: InfoWindow(
+            title: "Current Position",
+            snippet: "*",
+          ),
+          onTap: () => onCurrentPositionTapped,
+        );
+
+        setState(() {
+          markers[markerId] = marker;
+        });
       });
     } catch (e) {
       print("_MyHomePageState_TAG: _checkLocation: settings: $e");
@@ -185,17 +205,25 @@ class _MyHomePageState extends State<MyHomePage> {
       print(
           "_MyHomePageState_TAG: checkLocation: locationData: ${_locationData.latitude}, ${_locationData.longitude}");
 
-      final GoogleMapController controller = await _controller.future;
-      controller.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: LatLng(_locationData.latitude, _locationData.longitude),
-            zoom: 14.4746,
-          ),
-        ),
-      );
+      moveToCurrentPosition();
     } catch (e) {
       print("_MyHomePageState_TAG: _checkLocation: getLocation: $e");
     }
+  }
+
+  void moveToCurrentPosition() {
+    controller.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(_locationData.latitude, _locationData.longitude),
+          zoom: 17,
+        ),
+      ),
+    );
+  }
+
+  void onCurrentPositionTapped() {
+    print("_MyHomePageState_TAG: onCurrentPositionTapped: ");
+    moveToCurrentPosition();
   }
 }
