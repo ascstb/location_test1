@@ -112,6 +112,10 @@ class _MyHomePageState extends State<MyHomePage> {
     //region settings
     try {
       location.enableBackgroundMode(enable: true);
+      location.changeSettings(
+        accuracy: LocationAccuracy.balanced,
+        interval: 30000,
+      );
 
       location.onLocationChanged.listen(onCurrentLocationChanged);
     } catch (e) {
@@ -140,7 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Marker marker = generateCurrentMarker(markerId);
 
     // Defining an ID
-    PolylineId polylineId = PolylineId('poly');
+    /*PolylineId polylineId = PolylineId('poly');
     Polyline polyline = await generatePolyline(polylineId, marker);
 
     double distanceInMeters = _coordinateDistance(
@@ -154,14 +158,14 @@ class _MyHomePageState extends State<MyHomePage> {
         distanceInMeters.truncateToDouble() == distanceInMeters ? 0 : 2);
 
     print("_MyHomePageState_TAG: onCurrentLocationChanged: distanceInMeters: " +
-        distance);
+        distance);*/
 
     setState(() {
       markers[markerId] = marker;
-      markers[destinationMarker.markerId] = destinationMarker;
-      polylines[polylineId] = polyline;
+      // markers[destinationMarker.markerId] = destinationMarker;
+      // polylines[polylineId] = polyline;
 
-      title = distance + " mts.";
+      // title = distance + " mts.";
     });
   }
 
