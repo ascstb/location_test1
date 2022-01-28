@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'dart:math' show cos, sqrt, asin;
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -15,6 +17,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   Location location = Location();
   bool _serviceEnabled;
   PermissionStatus _permissionGranted;
@@ -46,6 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _checkLocation();
     title = widget.title;
+    _getDeviceInfo();
   }
 
   @override
@@ -240,5 +244,23 @@ class _MyHomePageState extends State<MyHomePage> {
         c((lat2 - lat1) * p) / 2 +
         c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
     return 12742 * asin(sqrt(a));
+  }
+
+  Future<void> _getDeviceInfo() async {
+    try {
+      if (Platform.isAndroid) {
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        print('Device model: ${androidInfo.model}');
+        print('Android ID: ${androidInfo.androidId}');
+        print('Android UUID: ${androidInfo.id}');
+      } else if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        print('Device model: ${iosInfo.utsname.machine}');
+        print('Device name: ${iosInfo.name}');
+        print('iOS UUID: ${iosInfo.identifierForVendor}');
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 }

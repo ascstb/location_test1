@@ -33,6 +33,9 @@ dependencies:
   geocoding: ^2.0.1
   geolocator: ^8.0.1
   flutter_polyline_points: ^1.0.0
+  device_info_plus: ^3.2.1
+
+
 
 dev_dependencies:
   flutter_test:
