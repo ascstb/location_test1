@@ -1,11 +1,13 @@
 import 'dart:io';
-import 'dart:math' show cos, sqrt, asin;
+import 'dart:math' show Random, asin, cos, sqrt;
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:location_test1/api/api_helper.dart';
+import 'package:location_test1/model/current_location_model.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -17,11 +19,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  CurrentLocation _currentLocation = CurrentLocation();
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   Location location = Location();
   bool _serviceEnabled;
   PermissionStatus _permissionGranted;
   LocationData _currentPosition;
+  String _deviceId;
 
   GoogleMapController controller;
   static final CameraPosition _sabinas = CameraPosition(
@@ -171,6 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       // title = distance + " mts.";
     });
+    sendDataToAPI(currentLocation);
   }
 
   Marker generateCurrentMarker(MarkerId markerId) {
@@ -250,16 +255,29 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       if (Platform.isAndroid) {
         AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-        print('Device model: ${androidInfo.model}');
         print('Android ID: ${androidInfo.androidId}');
-        print('Android UUID: ${androidInfo.id}');
+        _deviceId = androidInfo.androidId;
       } else if (Platform.isIOS) {
         IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-        print('Device model: ${iosInfo.utsname.machine}');
-        print('Device name: ${iosInfo.name}');
-        print('iOS UUID: ${iosInfo.identifierForVendor}');
+        print('iOS ID: ${iosInfo.identifierForVendor}');
+        _deviceId = iosInfo.identifierForVendor;
       }
     } catch (e) {
+      print(e);
+    }
+  }
+
+  void sendDataToAPI(LocationData currentLocation){
+    try{
+      _currentLocation.date = DateTime.now();
+      _currentLocation.dispositivoId = _deviceId;
+      _currentLocation.usuarioId = Random().nextInt(1000).toString();
+      _currentLocation.latitud = currentLocation.latitude;
+      _currentLocation.longitud = currentLocation.longitude;
+
+      print(_currentLocation.toJson());
+      ApiBaseHelper.post(_currentLocation);
+    }catch(e){
       print(e);
     }
   }
