@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:math' show Random, asin, cos, sqrt;
+import 'dart:math' show asin, cos, sqrt;
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
@@ -269,9 +269,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void sendDataToAPI(LocationData currentLocation){
     try{
-      _currentLocation.date = DateTime.now();
+      _currentLocation.fecha = DateTime.now();
       _currentLocation.dispositivoId = _deviceId;
-      _currentLocation.usuarioId = Random().nextInt(1000).toString();
+      _currentLocation.usuarioId = '1';
       _currentLocation.latitud = currentLocation.latitude;
       _currentLocation.longitud = currentLocation.longitude;
 

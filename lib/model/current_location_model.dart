@@ -4,20 +4,20 @@ class CurrentLocation {
         this.usuarioId,
         this.latitud,
         this.longitud,
-        this.date,
+        this.fecha,
     });
 
     String dispositivoId;
     String usuarioId;
     double latitud;
     double longitud;
-    DateTime date;
+    DateTime fecha;
 
     Map<String, dynamic> toJson() => {
         "dispositivoId": dispositivoId != null ? dispositivoId : null,
         "usuarioId": usuarioId != null ? usuarioId : null,
         "latitud": latitud != null ? latitud : null,
         "longitud": longitud != null ? longitud : null,
-        "date": date != null ? date.toIso8601String() : null,
+        "fecha": fecha != null ? fecha.toIso8601String() : null,
     };
 }
